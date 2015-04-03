@@ -1,9 +1,9 @@
-/* OKCupid Datamining project | Omar Akhtar | Jie Wen */
+#/* OKCupid Datamining project | Omar Akhtar | Jie Wen */
 
-mydata = read.csv("desktop/mydata.20120630.csv",header = TRUE)  # read csv file
+mydata = read.csv("desktop/profiles.20120630.csv",header = TRUE)  # read csv file
 summary(mydata)
 
-/* Cleaning Data */
+#/* Cleaning Data */
 ageNameError<-"#NAME?" 
 mydata$username = gsub("#NAME?",NA,mydata$username)
 mydata$username = gsub("--","",mydata$username)
@@ -86,3 +86,17 @@ mydata$sign=gsub('virgo.*', 'virgo', mydata$sign)
 mydata$sign=gsub('libra.*', 'libra', mydata$sign)
 mydata$sign=gsub('scorpio.*', 'scorpio', mydata$sign)
 mydata$sign=gsub('sagittarius.*', 'sagittarius', mydata$sign)
+
+#generate a word cloud of the cEssay
+library(tm)
+library(RColorBrewer)
+library(wordcloud)
+library(SnowballC)
+write.table(mydata$cEssay,file='desktop/cEssay.txt')
+lords <- Corpus(DirSource("desktop/Temp/"))
+lords <- tm_map(lords, stripWhitespace)
+lords <- tm_map(lords, PlainTextDocument)
+lords <- tm_map(lords, removeWords, stopwords("english"))
+lords <- tm_map(lords, stemDocument)
+#this step will take more than 4 hours
+wordcloud(lords, scale=c(5,0.5), max.words=100, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
