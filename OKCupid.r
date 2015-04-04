@@ -1,21 +1,22 @@
-#/* OKCupid Datamining project | Omar Akhtar | Jie Wen */
-
-mydata = read.csv("desktop/profiles.20120630.csv",header = TRUE)  # read csv file
+/* OKCupid Datamining project | Omar Akhtar | Jie Wen */
+  #SETL-ZFPFKQ-TD8K
+  
+  mydata = read.csv("C:\\Users\\Omar\\Documents\\GitHub\\Data-Mining-Project\\OKCupid.csv",header = TRUE)  # read csv file
 summary(mydata)
 
-#/* Cleaning Data */
-ageNameError<-"#NAME?" 
-mydata$username = gsub("#NAME?",NA,mydata$username)
+/* Cleaning Data */
+  mydata$username = gsub("#NAME?",NA,mydata$username)
 mydata$username = gsub("--","",mydata$username)
 mydata$username = gsub("-","",mydata$username)
 
+install.packages('ggplot2')
 library(ggplot2)
 
 baseGG <- ggplot(mydata, aes(factor(age)))
 baseGG +geom_bar(width=.5)
 
 /* Remove outlier ages and income*/
-mydata$age[mydata$age>80] <- NA
+  mydata$age[mydata$age>80] <- NA
 
 baseGG <- ggplot(mydata, aes(factor(income)))
 baseGG +geom_bar(width=.5)
@@ -69,9 +70,8 @@ mydata$essay9 = clean.text(mydata$essay9)
 
 #Combine all essays into new varible for text analysis
 mydata$cEssay <- paste(mydata$essay0,mydata$essay1,mydata$essay2, mydata$essay3,mydata$essay4,mydata$essay5,mydata$essay6,mydata$essay7,mydata$essay8,mydata$essay9,sep=" ")
-
-
-#Jie wen
+mydata$cEssay = gsub("[\r\n]", " ", mydata$cEssay)
+mydata$cEssay[6:7]
 
 #Remove everything except for signs in mydata$sign
 mydata$sign=gsub("capricorn.*", "capricorn", mydata$sign)
@@ -87,16 +87,34 @@ mydata$sign=gsub('libra.*', 'libra', mydata$sign)
 mydata$sign=gsub('scorpio.*', 'scorpio', mydata$sign)
 mydata$sign=gsub('sagittarius.*', 'sagittarius', mydata$sign)
 
-#generate a word cloud of the cEssay
+install.packages("tm")
 library(tm)
-library(RColorBrewer)
-library(wordcloud)
+dim(mydata)
+myCorpus <- Corpus(VectorSource(mydata$cEssay))
+myCorpus <- tm_map(myCorpus, tolower)
+# remove punctuation
+myCorpus <- tm_map(myCorpus, removePunctuation)
+# remove numbers
+myCorpus <- tm_map(myCorpus, removeNumbers)
+# remove stopwords
+myStopwords <- c(stopwords('english'))
+myCorpus <- tm_map(myCorpus, removeWords, myStopwords)
+
+dictCorpus <- myCorpus
+
+install.packages("SnowballC")
 library(SnowballC)
-write.table(mydata$cEssay,file='desktop/cEssay.txt')
-lords <- Corpus(DirSource("desktop/Temp/"))
-lords <- tm_map(lords, stripWhitespace)
-lords <- tm_map(lords, PlainTextDocument)
-lords <- tm_map(lords, removeWords, stopwords("english"))
-lords <- tm_map(lords, stemDocument)
-#this step will take more than 4 hours
-wordcloud(lords, scale=c(5,0.5), max.words=100, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
+
+myCorpus <- tm_map(myCorpus, stemDocument)
+myCorpus <- tm_map(myCorpus, PlainTextDocument)
+myCorpus <- tm_map(myCorpus, stripWhitespace)
+inspect(myCorpus[7:10])
+myDtm <- DocumentTermMatrix(myCorpus, control=list(bounds = list(global = c(5,Inf)))) #long time
+inspect(myDtm[246:251,81:87])
+install.packages("wordcloud")
+library(wordcloud)
+m <- as.matrix(myDtm)
+
+
+findFreqTerms(myDtm, lowfreq=50000)
+findAssocs(myDtm, 'love', 0.30)
