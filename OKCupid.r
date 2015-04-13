@@ -9,6 +9,9 @@ summary(mydata)
 mydata$username = gsub("--","",mydata$username)
 mydata$username = gsub("-","",mydata$username)
 
+mydata[mydata==""] <- NA
+mydata[is.na(mydata)] <- NA
+
 install.packages('ggplot2')
 library(ggplot2)
 
@@ -109,12 +112,32 @@ myCorpus <- tm_map(myCorpus, stemDocument)
 myCorpus <- tm_map(myCorpus, PlainTextDocument)
 myCorpus <- tm_map(myCorpus, stripWhitespace)
 inspect(myCorpus[7:10])
-myDtm <- DocumentTermMatrix(myCorpus, control=list(bounds = list(global = c(5,Inf)))) #long time
-inspect(myDtm[246:251,81:87])
+myDtm <- DocumentTermMatrix(myCorpus, control=list(bounds = list(global = c(50,Inf)))) #long time
+inspect(myDtm[1646:1659,1131:1147])
 install.packages("wordcloud")
 library(wordcloud)
-m <- as.matrix(myDtm)
 
 
-findFreqTerms(myDtm, lowfreq=50000)
+findFreqTerms(myDtm, lowfreq=1000)
+findAssocs(myDtm, 'friends', 0.30)
 findAssocs(myDtm, 'love', 0.30)
+
+table(mydata$age,mydata$income) #total entries 59946, NA=48443 ... majority empty
+
+
+counts <- table(mydata$income)
+barplot(counts, main="Income Distribution", 
+        xlab="Annual Income")
+
+#write.csv(mydata,"cupid.csv")
+dtm = myDtm
+dtm = removeSparseTerms(dtm, 0.60)
+dist.mat <- dist(t(as.matrix(dtm)))
+dist.mat  # check distance matrix
+fit <- cmdscale(dist.mat, eig = TRUE)
+points <- data.frame(x = fit$points[, 1], y = fit$points[, 2])
+rownames(fit$points)
+ggplot(points, aes(x = x, y = y ,label=rownames(fit$points))) + geom_point(data = points, aes(x = x, y = y)) +geom_text() 
+
+h <- hclust(dist.mat, method = "ward.D2")
+plot(h)
