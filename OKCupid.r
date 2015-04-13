@@ -141,3 +141,10 @@ ggplot(points, aes(x = x, y = y ,label=rownames(fit$points))) + geom_point(data 
 
 h <- hclust(dist.mat, method = "ward.D2")
 plot(h)
+
+clddtm = as.matrix(dtm)
+word_freqs = sort(colSums(clddtm), decreasing = TRUE) 
+# create a data frame with words and their frequencies
+dm = data.frame(word = names(word_freqs), freq = word_freqs)
+
+wordcloud(dm$word, dm$freq, random.order = FALSE, colors = brewer.pal(8, "Dark2"))
