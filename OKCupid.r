@@ -1,11 +1,11 @@
-/* OKCupid Datamining project | Omar Akhtar | Jie Wen */
+#/* OKCupid Datamining project | Omar Akhtar | Jie Wen */
   #SETL-ZFPFKQ-TD8K
   
-  mydata = read.csv("C:\\Users\\Omar\\Documents\\GitHub\\Data-Mining-Project\\OKCupid.csv",header = TRUE)  # read csv file
+mydata = read.csv("C:\\Users\\Omar\\Documents\\GitHub\\Data-Mining-Project\\OKCupid.csv",header = TRUE)  # read csv file
 summary(mydata)
 
-/* Cleaning Data */
-  mydata$username = gsub("#NAME?",NA,mydata$username)
+#/* Cleaning Data */
+mydata$username = gsub("#NAME?",NA,mydata$username)
 mydata$username = gsub("--","",mydata$username)
 mydata$username = gsub("-","",mydata$username)
 
@@ -18,8 +18,13 @@ library(ggplot2)
 baseGG <- ggplot(mydata, aes(factor(age)))
 baseGG +geom_bar(width=.5)
 
-/* Remove outlier ages and income*/
-  mydata$age[mydata$age>80] <- NA
+#<<<<<<< Updated upstream
+#/* Remove outlier ages and income*/
+mydata$age[mydata$age>80] <- NA
+#=======
+#/* Remove outlier ages and income*/
+mydata$age[mydata$age>80] <- NA
+#>>>>>>> Stashed changes
 
 baseGG <- ggplot(mydata, aes(factor(income)))
 baseGG +geom_bar(width=.5)
@@ -72,9 +77,17 @@ mydata$essay8 = clean.text(mydata$essay8)
 mydata$essay9 = clean.text(mydata$essay9)
 
 #Combine all essays into new varible for text analysis
+#<<<<<<< Updated upstream
 mydata$cEssay <- paste(mydata$essay0,mydata$essay1,mydata$essay2, mydata$essay3,mydata$essay4,mydata$essay5,mydata$essay6,mydata$essay7,mydata$essay8,mydata$essay9,sep=" ")
 mydata$cEssay = gsub("[\r\n]", " ", mydata$cEssay)
 mydata$cEssay[6:7]
+#=======
+mydata$Description <- paste(mydata$essay0,mydata$essay1,mydata$essay2, mydata$essay3,mydata$essay4,mydata$essay5,mydata$essay6,mydata$essay7,mydata$essay8,mydata$essay9,sep=" ")
+
+#Jie wen
+# Delete essay responses to reduce data frame size
+mydata <- mydata[, -which(substr(names(mydata), 1, 5) == "essay")]
+#>>>>>>> Stashed changes
 
 #Remove everything except for signs in mydata$sign
 mydata$sign=gsub("capricorn.*", "capricorn", mydata$sign)
@@ -90,7 +103,15 @@ mydata$sign=gsub('libra.*', 'libra', mydata$sign)
 mydata$sign=gsub('scorpio.*', 'scorpio', mydata$sign)
 mydata$sign=gsub('sagittarius.*', 'sagittarius', mydata$sign)
 
+#<<<<<<< Updated upstream
 install.packages("tm")
+#=======
+#pre-process the Description
+clean.text(mydata$Description)
+
+#generate a word cloud of the Description
+library(NLP)
+#>>>>>>> Stashed changes
 library(tm)
 dim(mydata)
 myCorpus <- Corpus(VectorSource(mydata$cEssay))
@@ -107,6 +128,7 @@ dictCorpus <- myCorpus
 
 install.packages("SnowballC")
 library(SnowballC)
+#<<<<<<< Updated upstream
 
 myCorpus <- tm_map(myCorpus, stemDocument)
 myCorpus <- tm_map(myCorpus, PlainTextDocument)
@@ -148,3 +170,19 @@ word_freqs = sort(colSums(clddtm), decreasing = TRUE)
 dm = data.frame(word = names(word_freqs), freq = word_freqs)
 
 wordcloud(dm$word, dm$freq, random.order = FALSE, colors = brewer.pal(8, "Dark2"))
+#=======
+#write.table(mydata$Description,file='desktop/Description.txt')
+#lords <- Corpus(DirSource("desktop/Temp/"))
+#lords <- tm_map(lords, stripWhitespace)
+#lords <- tm_map(lords, PlainTextDocument)
+#lords <- tm_map(lords, removeWords, stopwords("english"))
+#lords <- tm_map(lords, stemDocument)
+#this step will take more than 4 hours
+#wordcloud(lords, scale=c(5,0.5), max.words=100, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
+
+#extract the Description part
+essay<-mydata[ ,c('username', 'Description')]
+# Delete Description to reduce data frame size
+mydata <- mydata[, -which(substr(names(mydata),1,11) == "Description")]
+
+#>>>>>>> Stashed changes
