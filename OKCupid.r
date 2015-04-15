@@ -1,6 +1,6 @@
 #/* OKCupid Datamining project | Omar Akhtar | Jie Wen */
-  #SETL-ZFPFKQ-TD8K
-  
+#SETL-ZFPFKQ-TD8K
+
 mydata = read.csv("C:\\Users\\Omar\\Documents\\GitHub\\Data-Mining-Project\\OKCupid.csv",header = TRUE)  # read csv file
 summary(mydata)
 
