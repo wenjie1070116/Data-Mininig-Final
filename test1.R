@@ -67,3 +67,15 @@ location<-data.frame(test1[,which(names(test1) == "location")])
 location$state<-gsub("^.*?,","",location$test1...which.names.test1......location...)
 location$city<-gsub(",.*","",location$test1...which.names.test1......location...)
 location$state = gsub("^ ", "",location$state)
+
+table(location$state)
+california_city<-table(location$city)
+names(california_city)[1]="city"
+names(california_city)[2]="frequency"
+
+library(ggmap)
+geo_info<-data.frame(geocode(paste(california_city$city,'california')))
+california_city$LONG<-geo_info$lon
+california_city$LAT<-geo_info$lat
+california_map <- get_map(location="California", zoom=6, maptype="terrain")
+ggmap(california_map, extent="normal") + geom_point(data=california_city, aes(x=LONG,y=LAT,size=frequency)) + theme_bw()
