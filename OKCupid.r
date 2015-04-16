@@ -186,3 +186,39 @@ essay<-mydata[ ,c('username', 'Description')]
 mydata <- mydata[, -which(substr(names(mydata),1,11) == "Description")]
 
 #>>>>>>> Stashed changes
+
+male_data <- subset(test1,test1$sex==1)
+female_data <- subset(test1,test1$sex==0)
+
+library(ggplot2)
+male_height<-data.frame(table(male_data$height))
+height<-as.vector(male_height$Var1)
+frequency<-as.vector(male_height$Freq/35829)
+plot(height,frequency,type="l",xlim=range(0,100),ylim=range(0,0.15))
+height <- seq(0,100,length=35829)
+frequency <- dnorm(height,mean=69.4,sd=3)
+par(new=TRUE)
+plot(height,frequency, type="l", col="red",ylim=range(0,0.15),main="Average male heights vs. OkCupid male heights")
+
+female_height<-data.frame(table(female_data$height))
+height<-as.vector(female_height$Var1)
+frequency<-as.vector(female_height$Freq/24117)
+plot(height,frequency,type="l",xlim=range(0,100),ylim=range(0,0.15))
+height <- seq(0,100,length=24117)
+frequency <- dnorm(height,mean=64,sd=3)
+par(new=TRUE)
+plot(height,frequency, type="l", col="red",ylim=range(0,0.15),main="Average female heights vs. OkCupid female heights")
+
+income<-table(mydata$age,mydata$income)
+
+library(lattice)
+t1 <- table(female_data$income)
+t2 <- table(male_data$income)
+t3 <- table(female_data$age)
+t4 <- table(male_data$age)
+barchart(cbind(t1, t2), stack = F, horizontal = F)
+barchart(cbind(t3,t4), stack = F, horizontal = F)
+
+# heatmap for income
+income<-as.matrix(table(mydata$age,mydata$income))
+income_heatmap <- heatmap(income, Rowv=NA, Colv=NA, col = rainbow(256), scale="column", margins=c(5,10))
