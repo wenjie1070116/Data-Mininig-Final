@@ -222,3 +222,4 @@ barchart(cbind(t3,t4), stack = F, horizontal = F)
 # heatmap for income
 income<-as.matrix(table(mydata$age,mydata$income))
 income_heatmap <- heatmap(income, Rowv=NA, Colv=NA, col = rainbow(256), scale="column", margins=c(5,10))
+
